@@ -3,6 +3,7 @@
 ## Author
 
 Marco D'Alia
+
 [Deepgram](https://deepgram.com)
 
 ## License
