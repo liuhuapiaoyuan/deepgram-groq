@@ -2,15 +2,17 @@
 
 import {
   CreateProjectKeyResponse,
+  DeepgramClient,
   LiveClient,
   LiveTranscriptionEvents,
   createClient,
 } from "@deepgram/sdk";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useQueue } from "@uidotdev/usehooks";
 import Dg from "./dg.svg";
 import Recording from "./recording.svg";
 import Image from "next/image";
+import GrowqAgentResponse from "./groq";
 
 export default function Microphone() {
   const { add, remove, first, size, queue } = useQueue<any>([]);
@@ -24,6 +26,8 @@ export default function Microphone() {
   const [microphone, setMicrophone] = useState<MediaRecorder | null>();
   const [userMedia, setUserMedia] = useState<MediaStream | null>();
   const [caption, setCaption] = useState<string | null>();
+  const [isFinal, setIsFinal] = useState(false);
+  const [deepgram, setDeepgram] = useState<DeepgramClient>();
 
   const toggleMicrophone = useCallback(async () => {
     if (microphone && userMedia) {
@@ -77,10 +81,12 @@ export default function Microphone() {
     if (apiKey && "key" in apiKey) {
       console.log("connecting to deepgram");
       const deepgram = createClient(apiKey?.key ?? "");
+      setDeepgram(deepgram);
       const connection = deepgram.listen.live({
         model: "nova",
         interim_results: true,
         smart_format: true,
+        utterance_end_ms: 1000,
       });
 
       connection.on(LiveTranscriptionEvents.Open, () => {
@@ -101,6 +107,7 @@ export default function Microphone() {
           .map((word: any) => word.punctuated_word ?? word.word)
           .join(" ");
         if (caption !== "") {
+          setIsFinal(data.is_final);
           setCaption(caption);
         }
       });
@@ -175,6 +182,11 @@ export default function Microphone() {
             ? caption
             : "** Realtime transcription by Deepgram **"}
         </div>
+        <GrowqAgentResponse
+          caption={caption}
+          isFinal={isFinal}
+          deepgram={deepgram}
+        />
       </div>
       <div
         className="z-20 text-white flex shrink-0 grow-0 justify-around items-center 
