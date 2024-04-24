@@ -6,7 +6,7 @@ settings:
 
 dependencies:
   '@deepgram/sdk':
-    specifier: ^3.0.0-beta.2
+    specifier: ^3.2.0
     version: 3.2.0
   '@svgr/webpack':
     specifier: ^8.1.0
@@ -32,7 +32,7 @@ dependencies:
 
 devDependencies:
   '@types/node':
-    specifier: ^20
+    specifier: ^20.12.7
     version: 20.12.7
   '@types/react':
     specifier: ^18
